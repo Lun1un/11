@@ -1,0 +1,312 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            padding: 0;
+            //cursor: none;
+        }
+
+
+        #all2 {
+            padding: 100px 0 0 450px;
+            padding-top: 50px;
+            
+        }
+
+        #tool {
+            width: auto;
+            float: left;
+            line-height: 10px;
+            color: blue;
+        }
+
+            #tool input {
+                width: 70px;
+            }
+
+        #txt {
+            color: red;
+            float: left;
+            margin-left: 100px;
+        }
+
+        #tables {
+            margin: 200px 0 0 100px;
+        }
+
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 1px solid white;
+            border-radius: 50%;
+            position: absolute;
+            transition-duration: 200ms;
+            transition-timing-function: ease-out;
+            animation: cursorAnim .5s infinite alternate;
+            pointer-events: none;
+        }
+
+            .cursor::after {
+                content: "";
+                width: 20px;
+                height: 20px;
+                position: absolute;
+                border: 8px solid gray;
+                border-radius: 50%;
+                opacity: .5;
+                top: -8px;
+                left: -8px;
+                animation: cursorAnim2 .5s infinite alternate;
+            }
+
+        @keyframes cursorAnim {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(.7);
+            }
+        }
+
+        @keyframes cursorAnim2 {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(.4);
+            }
+        }
+
+        @keyframes cursorAnim3 {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(3);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .expand {
+            animation: cursorAnim3 .5s forwards;
+            border: 1px solid red;
+        }
+
+        p {
+            color: white;
+            font-family: 'arial';
+            text-align: center;
+            margin-top: 50px;
+            font-size: 1.4em;
+            a
+
+        {
+            color: teal;
+        }
+        }
+    </style>
+
+    <script>
+
+        // 洞的圖片
+        var image = document.getElementsByTagName('img');
+        var ranK;
+        var t;
+        var s;
+        var v;
+        var d;
+        var countdown;
+        var z = document.getElementById("nono");
+        
+        //倒數計時
+        function settime() {
+            if (countdown == 0) {
+                //時間到結束
+                stop();
+            } else {
+                //每次-1秒輸出顯示
+                document.getElementById("lastTime").innerText = countdown;
+                countdown--;
+                d = setTimeout(function () {
+                    settime()
+                }, 1000)
+            }
+
+        }
+        //開始
+        function start() {
+            //每個圖片失敗事件
+            for (var i = 0; i < 16; i++) {
+                image[i].setAttribute("onclick", "fail()");
+            }
+            //各欄狀態
+            document.getElementById("startGame").setAttribute("disabled", true);
+            document.getElementById("stopTime").setAttribute("disabled", true);
+            document.getElementById("spaceTime").setAttribute("disabled", true);
+            document.getElementById("gameTime").setAttribute("disabled", true);
+            document.getElementById("overGame").removeAttribute("disabled");
+            //遊戲總秒數
+            countdown = Number(document.getElementById("gameTime").value) * 60;
+            //開始遊戲
+            go();
+            //開始倒數
+            settime();
+
+        }
+        //讓猴子隨機出現
+        function randomnum() {
+            ranK = Math.floor(Math.random() * 16);
+            
+        }
+        function go() {
+            //隨機值1格
+            randomnum();
+            image[ranK].src = "img01.png";
+            //每個圖片失敗事件
+            image[ranK].removeAttribute("onclick", "fail()");
+            image[ranK].setAttribute("onclick", "eat()");
+            //停留時間觸發執行 no()
+            s = setTimeout("no()", Number(document.getElementById("stopTime").value) * 1000);
+
+        }
+        //沒打到猴子
+        function no() {
+            // 沒打到猴子，扣100分。
+            if (image[ranK].src.substr(image[ranK].src.length - 5, 1) != 2) {
+                fail();
+                document.getElementById('nono').innerText = "沒打到";
+                randomnum();
+            }
+            //初始圖片
+            image[ranK].src = "img0.gif";
+            image[ranK].setAttribute("onclick", "fail()");
+            v = setTimeout("go()", Number(document.getElementById("spaceTime").value) * 1000);
+            randomnum();
+        }
+        //打到猴子
+        function eat() {
+            //切換圖片
+            image[ranK].src = "img02.png";
+            //加100分
+            document.getElementById("account").innerText = Number(document.getElementById("account").innerText) + 100;
+            randomnum();
+        }
+        //沒打到扣100
+        function fail() {
+            document.getElementById("account").innerText = Number(document.getElementById("account").innerText) - 100;
+            document.getElementById('nono').style.display = 'none';
+            randomnum();
+        }
+        //結束 顯示積分  清空stop()
+        function stop() {
+            alert("得分:" + document.getElementById("account").innerText);
+            //清除所有計時器
+            clearTimeout(t);
+            clearTimeout(s);
+            clearTimeout(v);
+            clearTimeout(d);
+            //各欄狀態
+            document.getElementById("stopTime").value = "1";
+            document.getElementById("spaceTime").value = "1";
+            document.getElementById("gameTime").value = "1";
+            document.getElementById("lastTime").innerText = "";
+            document.getElementById("account").innerText = "0";
+            document.getElementById("startGame").removeAttribute("disabled");
+            document.getElementById("stopTime").removeAttribute("disabled");
+            document.getElementById("spaceTime").removeAttribute("disabled");
+            document.getElementById("gameTime").removeAttribute("disabled");
+            document.getElementById("overGame").setAttribute("disabled", true);
+            //初始化所有圖片
+            for (var i = 0; i < 16; i++) {
+                image[i].src = "img0.gif";
+            }
+        }
+    </script>
+</head>
+<body>
+    <a class="cursor"></a>
+    <script>
+
+        const cursor = document.querySelector('.cursor');
+
+        document.addEventListener('mousemove', e => {
+            cursor.setAttribute("style", "top: " + (e.pageY - 10) + "px; left: " + (e.pageX - 10) + "px;")
+        })
+
+        document.addEventListener('click', () => {
+            cursor.classList.add("expand");
+
+            setTimeout(() => {
+                cursor.classList.remove("expand");
+            }, 500)
+        })
+
+    </script>
+
+    <div id="all2" >
+        <div id="tool">
+            <p style="color:red">遊戲時間：　<input type="text" name="" value="1" id="gameTime" /><label>分鐘</label></pstyle="tool">
+            <p style="color:red">出現間隔：　<input type="text" name="" value="1" id="spaceTime" /><label>秒</label></p>
+            <p style="color:red">剩餘時間：　<label id="lastTime"></label></p>
+            <p style="color:red">停留時間：　<input type="text" name="" value="1" id="stopTime" /><label>秒</label></p>
+            <p style="color:red">得到分數：　<label id="account">0</label></p>
+            <input type="button" onclick="start()" id="startGame" value="開始" />
+            <input type="button" onclick="stop()" id="overGame" disabled="true" value="結束" />
+        </div>
+
+
+            <label><font size="8">遊戲說明</font></label><br />
+            <font size="6">
+                打到目標得100分   </big></big> <br />
+                沒打到或打錯扣100分
+            </font><br />
+        </div>
+        <div>
+            <table id="tables">
+                <tr>
+                    <td><img src="img0.gif"></td>
+                    <td><img src="img0.gif"></td>
+                    <td><img src="img0.gif"></td>
+                    <td><img src="img0.gif"></td>
+                </tr>
+
+                <tr>
+                    <td><img src="img0.gif"></td>
+                    <td><img src="img0.gif"></td>
+                    <td><img src="img0.gif"></td>
+                    <td><img src="img0.gif"></td>
+                </tr>
+
+                <tr>
+                    <td><img src="img0.gif"></td>
+                    <td><img src="img0.gif"></td>
+                    <td><img src="img0.gif"></td>
+                    <td><img src="img0.gif"></td>
+                </tr>
+
+                <tr>
+                    <td><img src="img0.gif"></td>
+                    <td><img src="img0.gif"></td>
+                    <td><img src="img0.gif"></td>
+                    <td><img src="img0.gif"></td>
+                </tr>
+
+
+            </table>
+        </div>
+</body>
+</html>
